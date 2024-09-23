@@ -2,6 +2,14 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+// Fungsi untuk mengonversi UTC ke WIB (GMT+7)
+function convertToWIB(date) {
+    const localDate = new Date(date);
+    // Menambahkan 7 jam ke waktu UTC untuk mendapatkan WIB
+    localDate.setHours(localDate.getHours() + 7);
+    return localDate;
+}
+
 export async function POST(req) {
     const { deviceId } = await req.json();
 
@@ -17,11 +25,31 @@ export async function POST(req) {
         const currentDate = new Date();
 
         if (trial) {
+            // Konversi waktu trial ke WIB
+            const startDateLocal = convertToWIB(trial.startDate);
+            const endDateLocal = convertToWIB(trial.endDate);
+
             // Mengecek apakah trial masih dalam waktu active
             if (currentDate >= trial.startDate && currentDate <= trial.endDate) {
-                return new Response(JSON.stringify({ message: 'Trial is active', status: 'active', trial }), { status: 200 });
+                return new Response(JSON.stringify({ 
+                    message: 'Trial is active', 
+                    status: 'active', 
+                    trial: {
+                        ...trial,
+                        startDate: startDateLocal,
+                        endDate: endDateLocal
+                    } 
+                }), { status: 200 });
             } else {
-                return new Response(JSON.stringify({ message: 'Trial expired', status: 'expired', trial }), { status: 200 });
+                return new Response(JSON.stringify({ 
+                    message: 'Trial expired', 
+                    status: 'expired', 
+                    trial: {
+                        ...trial,
+                        startDate: startDateLocal,
+                        endDate: endDateLocal
+                    } 
+                }), { status: 200 });
             }
         } else {
             // Jika trial belum ada, buat trial baru (misalnya 10 menit)
@@ -31,11 +59,23 @@ export async function POST(req) {
                     deviceId,
                     startDate: currentDate,
                     endDate: new Date(currentDate.getTime() + trialDurationInMinutes * 60000),
-                    status: 'active', // Status disimpan sebagai 'active' saat trial dimulai
+                    status: 'active',
                 },
             });
 
-            return new Response(JSON.stringify({ message: 'Trial started', status: 'active', trial: newTrial }), { status: 201 });
+            // Konversi waktu trial baru ke WIB
+            const startDateLocal = convertToWIB(newTrial.startDate);
+            const endDateLocal = convertToWIB(newTrial.endDate);
+
+            return new Response(JSON.stringify({ 
+                message: 'Trial started', 
+                status: 'active', 
+                trial: {
+                    ...newTrial,
+                    startDate: startDateLocal,
+                    endDate: endDateLocal
+                } 
+            }), { status: 201 });
         }
     } catch (error) {
         return new Response(JSON.stringify({ message: 'Internal server error', error }), { status: 500 });
