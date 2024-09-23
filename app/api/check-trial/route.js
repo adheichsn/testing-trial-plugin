@@ -22,7 +22,8 @@ export async function POST(req) {
             where: { deviceId },
         });
 
-        const currentDate = new Date();
+        let currentDate = new Date();  // Ambil waktu saat ini dalam UTC
+        currentDate = convertToWIB(currentDate);  // Konversi currentDate ke WIB
 
         if (trial) {
             // Konversi waktu trial ke WIB
@@ -30,7 +31,7 @@ export async function POST(req) {
             const endDateLocal = convertToWIB(trial.endDate);
 
             // Mengecek apakah trial masih dalam waktu active
-            if (currentDate >= trial.startDate && currentDate <= trial.endDate) {
+            if (currentDate >= startDateLocal && currentDate <= endDateLocal) {
                 return new Response(JSON.stringify({ 
                     message: 'Trial is active', 
                     status: 'active', 
@@ -57,8 +58,8 @@ export async function POST(req) {
             const newTrial = await prisma.trial.create({
                 data: {
                     deviceId,
-                    startDate: currentDate,
-                    endDate: new Date(currentDate.getTime() + trialDurationInMinutes * 60000),
+                    startDate: currentDate,  // Simpan currentDate dalam zona WIB
+                    endDate: new Date(currentDate.getTime() + trialDurationInMinutes * 60000),  // Kalkulasi waktu endDate
                     status: 'active',
                 },
             });
