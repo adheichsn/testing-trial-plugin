@@ -25,6 +25,11 @@ export async function POST(req) {
         let currentDate = new Date();  // Ambil waktu saat ini dalam UTC
         currentDate = convertToWIB(currentDate);  // Konversi currentDate ke WIB
 
+        // Log currentDate dan trial dates untuk debugging
+        console.log("Current Date WIB:", currentDate);
+        console.log("Trial Start Date WIB:", trial ? convertToWIB(trial.startDate) : null);
+        console.log("Trial End Date WIB:", trial ? convertToWIB(trial.endDate) : null);
+
         if (trial) {
             // Konversi waktu trial ke WIB
             const startDateLocal = convertToWIB(trial.startDate);
@@ -79,6 +84,7 @@ export async function POST(req) {
             }), { status: 201 });
         }
     } catch (error) {
+        console.error("Error checking trial:", error);
         return new Response(JSON.stringify({ message: 'Internal server error', error }), { status: 500 });
     }
 }
