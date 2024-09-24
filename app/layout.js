@@ -13,7 +13,7 @@ const geistMono = localFont({
 });
 
 export const metadata = {
-  title: "Trial Seville Plugin",
+  title: "Error",
   description: "Trial Seville Plugin APPS",
 };
 

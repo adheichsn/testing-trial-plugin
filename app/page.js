@@ -1,7 +1,5 @@
-import Image from "next/image";
-
 export default function Home() {
   return (
-    <p>cannot GET</p>
+    <p>cannot GET ()</p>
   );
 }
