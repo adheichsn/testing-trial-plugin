@@ -114,13 +114,13 @@ export async function POST(req) {
                 }), { status: 200 });
             }
         } else {
-            // Jika trial tidak ada, buat trial baru dengan durasi 1 hari
-            const trialDurationInDays = 1;
+            // Jika trial tidak ada, buat trial baru dengan durasi 10 hari
+            const trialDurationInDays = 10;  // Ubah ke 10 hari
             const newTrial = await prisma.trial.create({
                 data: {
                     deviceId,
                     startDate: currentDate,
-                    endDate: new Date(currentDate.getTime() + trialDurationInDays * 24 * 60 * 60 * 1000)
+                    endDate: new Date(currentDate.getTime() + trialDurationInDays * 24 * 60 * 60 * 1000) // Set trial duration ke 10 hari
                 },
             });
 
